@@ -186,6 +186,11 @@ int setMusic(String args){
   } else if (args == "tone") {
       song = standardTone;
   } else {
+      // remember old setting, play SMB Death, set back to old
+      char *oldVal = song;
+      song = smbdeath;
+      remoteTriggered = true;
+      song = oldVal;
     return 500;
   }
 
