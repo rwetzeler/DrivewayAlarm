@@ -84,6 +84,8 @@ void setup() {
 
     setupAudio();
     setupDrivewayAlarm();
+
+    playSetupTone();
 }
 
 void loop() {
@@ -144,6 +146,11 @@ void alarmTriggered(float rawVolts){
     Spark.publish("readValue1", "Input Volts: " + String(rawVolts), 60, PRIVATE);
 
     if(DEBUG) Serial.println("Alarm Raw Volts: " + String(rawVolts));
+}
+
+void playSetupTone() {
+  song = standardTone;
+  remoteTriggered = true;
 }
 
 int setMusic(String args){
