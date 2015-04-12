@@ -170,6 +170,8 @@ int setMusic(String args){
       song = gadget;
   } else if (args == "tone") {
       song = standardTone;
+  } else {
+    return 500;
   }
 
   return 200;
