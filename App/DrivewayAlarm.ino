@@ -39,9 +39,9 @@ byte note;
 byte scale;
 bool songDone = false;
 char *songPtr;
+
+
 //https://github.com/technobly/Remote-RTTTL/
-
-
 
 
 //char *song = (char *)"The Simpsons:d=4,o=5,b=168:c.6,e6,f#6,8a6,g.6,e6,c6,8a,8f#,8f#,8f#,2g,8p,8p,8f#,8f#,8f#,8g,a#.,8c6,8c6,8c6,c6";
@@ -90,6 +90,15 @@ void setup() {
 
 void loop() {
 
+  int readVal = analogRead(drivewayPin);
+  float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
+
+  if(rawVolts > triggerValue) {
+      alarmTriggered(rawVolts);
+      } else {
+      digitalWrite(alarmLED, LOW);  //ensure alarm light is off
+    }
+
      // The main loop() processes one note of the song at a time
   // to avoid blocking the background tasks for too long or else
   // the Spark Core would disconnect from the Cloud.
@@ -107,16 +116,6 @@ void loop() {
       delay(2000);
     }
   }
-
-    int readVal = analogRead(drivewayPin);
-    float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
-
-    if(rawVolts > triggerValue) {
-        alarmTriggered(rawVolts);
-
-     } else {
-         digitalWrite(alarmLED, LOW);
-    }
 }
 
 void setupAudio() {
