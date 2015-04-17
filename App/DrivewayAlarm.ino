@@ -39,7 +39,7 @@ byte note;
 byte scale;
 bool songDone = false;
 char *songPtr;
-
+//https://github.com/technobly/Remote-RTTTL/
 
 
 
@@ -77,9 +77,9 @@ char *song = standardTone;
 void setup() {
 
     if(DEBUG) {
-        Serial.begin(115200);
+        Serial1.begin(115200);
         delay(alarmDelay);
-        Serial.println("Setup Running");
+        Serial1.println("Setup Running");
     }
 
     setupAudio();
@@ -103,7 +103,7 @@ void loop() {
       digitalWrite(D7,LOW); // Turn off the onboard Blue LED.
       songDone = false;
       remoteTriggered = false;
-      if(DEBUG) Serial.println("Done!");
+      if(DEBUG) Serial1.println("Done!");
       delay(2000);
     }
   }
@@ -133,7 +133,7 @@ void setupDrivewayAlarm(){
 
     int readVal = analogRead(drivewayPin);
     float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
-    if (DEBUG) Serial.println("Init A1 Raw Volts: " + String(rawVolts));
+    if (DEBUG) Serial1.println("Init A1 Raw Volts: " + String(rawVolts));
 
     digitalWrite(alarmLED, LOW); // ensure LED is off
 }
@@ -145,7 +145,7 @@ void alarmTriggered(float rawVolts){
     Spark.publish("DrivewayAlarm", "Input Volts: " + String(rawVolts), 60, PRIVATE);
     Spark.publish("readValue1", "Input Volts: " + String(rawVolts), 60, PRIVATE);
 
-    if(DEBUG) Serial.println("Alarm Raw Volts: " + String(rawVolts));
+    if(DEBUG) Serial1.println("Alarm Raw Volts: " + String(rawVolts));
 }
 
 void playSetupTone() {
@@ -155,7 +155,7 @@ void playSetupTone() {
 
 int setMusic(String args){
 
- if(DEBUG) Serial.println("Music Choice " + String(args));
+ if(DEBUG) Serial1.println("Music Choice " + String(args));
 
   if(args == "StarWars") {
     song = starWars;
@@ -203,7 +203,7 @@ void begin_rtttl(char *p)
 
   // format: d=N,o=N,b=NNN:
   // find the start (skip name, etc)
-  if(DEBUG) { Serial.print("begin_rtttl= " + String(p)); }
+  if(DEBUG) { Serial1.print("begin_rtttl= " + String(p)); }
   while(*p != ':') p++;    // ignore name
   p++;                     // skip ':'
 
@@ -220,7 +220,7 @@ void begin_rtttl(char *p)
     p++;                   // skip comma
   }
 
-  if(DEBUG) { Serial.print("ddur: "); Serial.println(default_dur, 10); }
+  if(DEBUG) { Serial1.print("ddur: "); Serial1.println(default_dur, 10); }
 
   // get default octave
   if(*p == 'o')
@@ -231,7 +231,7 @@ void begin_rtttl(char *p)
     p++;                   // skip comma
   }
 
-  if(DEBUG) { Serial.print("doct: "); Serial.println(default_oct, 10); }
+  if(DEBUG) { Serial1.print("doct: "); Serial1.println(default_oct, 10); }
 
   // get BPM
   if(*p == 'b')
@@ -246,12 +246,12 @@ void begin_rtttl(char *p)
     p++;                   // skip colon
   }
 
-  if(DEBUG) { Serial.print("bpm: "); Serial.println(bpm, 10); }
+  if(DEBUG) { Serial1.print("bpm: "); Serial1.println(bpm, 10); }
 
   // BPM usually expresses the number of quarter notes per minute
   wholenote = (60 * 1000L / bpm) * 2;  // this is the time for whole note (in milliseconds)
 
-  if(DEBUG) { Serial.print("wn: "); Serial.println(wholenote, 10); }
+  if(DEBUG) { Serial1.print("wn: "); Serial1.println(wholenote, 10); }
 
   // Save current song pointer...
   songPtr = p;
@@ -342,12 +342,12 @@ bool next_rtttl() {
     if(note)
     {
       if(DEBUG) {
-        Serial.print("Playing: ");
-        Serial.print(scale, 10); Serial.print(' ');
-        Serial.print(note, 10); Serial.print(" (");
-        Serial.print(notes[(scale - lowest_oct) * 12 + note], 10);
-        Serial.print(") ");
-        Serial.println(duration, 10);
+        Serial1.print("Playing: ");
+        Serial1.print(scale, 10); Serial1.print(' ');
+        Serial1.print(note, 10); Serial1.print(" (");
+        Serial1.print(notes[(scale - lowest_oct) * 12 + note], 10);
+        Serial1.print(") ");
+        Serial1.println(duration, 10);
       }
       tone(tonePin, notes[(scale - lowest_oct) * 12 + note], duration);
       //noTone(tonePin);
@@ -355,8 +355,8 @@ bool next_rtttl() {
     else
     {
       if(DEBUG) {
-        Serial.print("Pausing: ");
-        Serial.println(duration, 10);
+        Serial1.print("Pausing: ");
+        Serial1.println(duration, 10);
       }
       delay(duration);
     }
@@ -378,7 +378,7 @@ void tone(int pin, int16_t note, int16_t duration) {
 
 
 int alarmTestTrigger(String args){
-    if(DEBUG) Serial.println("alarmTriggeredTest Called");
+    if(DEBUG) Serial1.println("alarmTriggeredTest Called");
     alarmTriggered(3.0);
     return 200;
 }
