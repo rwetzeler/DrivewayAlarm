@@ -139,10 +139,11 @@ void setupDrivewayAlarm(){
 
 void alarmTriggered(float rawVolts){
     digitalWrite(alarmLED, HIGH);
-    remoteTriggered = true; // start music
 
     Spark.publish("DrivewayAlarm", "Input Volts: " + String(rawVolts), 60, PRIVATE);
     Spark.publish("readValue1", "Input Volts: " + String(rawVolts), 60, PRIVATE);
+
+    remoteTriggered = true; // start music
 
     if(DEBUG) Serial1.println("Alarm Raw Volts: " + String(rawVolts));
 }
