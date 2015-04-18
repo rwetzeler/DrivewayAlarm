@@ -5,5 +5,5 @@ This project is to utilize a [Spark.IO] (http://spark.io), a Cloud enabled IoT d
 * Spark.IO
 * Breadboard
 * [Breadboard-Friendly 3.5mm Stereo Headphone Jack ID:1699] (https://www.adafruit.com/product/1699) 
-* [3.3V 250mA Linear Voltage Regulator - L4931-3.3 TO-92 ID:2166] (https://www.adafruit.com/product/216
+* [3.3V 250mA Linear Voltage Regulator - L4931-3.3 TO-92 ID:2166] (https://www.adafruit.com/product/2166)
 * [Speaker - 3" Diameter - 8 Ohm 1 Watt ID:1313] (https://www.adafruit.com/product/1313)
