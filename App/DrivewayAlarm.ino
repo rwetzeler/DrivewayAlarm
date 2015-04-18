@@ -1,6 +1,6 @@
 const float voltsPerBit = 3.3 / 4095;  // Calculate volts per bit of ADC reading
 const float ratioV = (120000 + 33000) / 33000;  //Calculates to 4.636363 (120,000 load resisitor, 33,000 ground resistor)
-const float triggerValue = 2.0;
+const float triggerValue = 1.0; // should give about 1.4 voltage for 3 seconds when triggered with voltage regulator
 const int loopDelay = 10;
 const int alarmDelay = 10000; // voltage spikes for 3 seconds, delay for 10 seconds
 
