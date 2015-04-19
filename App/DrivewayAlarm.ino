@@ -1,19 +1,20 @@
 const float voltsPerBit = 3.3 / 4095;  // Calculate volts per bit of ADC reading
 const float ratioV = (120000 + 33000) / 33000;  //Calculates to 4.636363 (120,000 load resisitor, 33,000 ground resistor)
-const float triggerValue = 1.0; // should give about 1.4 voltage for 3 seconds when triggered with voltage regulator
 const int loopDelay = 10;
 const int alarmDelay = 10000; // voltage spikes for 3 seconds, delay for 10 seconds
 
 const int alarmLED = D0;
-const int drivewayPin = A1;
+const int drivewayPin = D1;
 
 bool playing = false;
+const float triggerValue = 2.0; // should give about 1.4 voltage for 3 seconds when triggered with voltage regulator
 
 #define DEBUG true
 #define OCTAVE_OFFSET 0
 
 int16_t tonePin = D5;
 bool remoteTriggered = false; // global state variable for remoteTrigger() function
+bool alarmState = false;    // Tracks current alarm state
 
 // Notes defined in microseconds (Period/2)
 // from note C to B, Octaves 3 through 7
@@ -55,6 +56,7 @@ char *muppets = (char *)"Muppets:d=4,o=5,b=250:c6,c6,a,b,8a,b,g,p,c6,c6,a,8b,8a,
 char *bond = (char *)"Bond:d=4,o=5,b=80:32p,16c#6,32d#6,32d#6,16d#6,8d#6,16c#6,16c#6,16c#6,16c#6,32e6,32e6,16e6,8e6,16d#6,16d#6,16d#6,16c#6,32d#6,32d#6,16d#6,8d#6,16c#6,16c#6,16c#6,16c#6,32e6,32e6,16e6,8e6,16d#6,16d6,16c#6,16c#7,c.7,16g#6,16f#6,g#.6";
 //char *song = (char *)"MASH:d=8,o=5,b=140:4a,4g,f#,g,p,f#,p,g,p,f#,p,2e.,p,f#,e,4f#,e,f#,p,e,p,4d.,p,f#,4e,d,e,p,d,p,e,p,d,p,2c#.,p,d,c#,4d,c#,d,p,e,p,4f#,p,a,p,4b,a,b,p,a,p,b,p,2a.,4p,a,b,a,4b,a,b,p,2a.,a,4f#,a,b,p,d6,p,4e.6,d6,b,p,a,p,2b";
 char *starWars = (char *)"StarWars:d=4,o=5,b=45:32p,32f#,32f#,32f#,8b.,8f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32e6,8c#.6,32f#,32f#,32f#,8b.,8f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32c#6,8b.6,16f#.6,32e6,32d#6,32e6,8c#6";
+char *starWars2 = (char* )"StarWars2:d=8,o=6,b=180:f5,f5,f5,2a#5.,2f.,d#,d,c,2a#.,4f.,d#,d,c,2a#.,4f.,d#,d,d#,2c,4p,f5,f5,f5,2a#5.,2f.,d#,d,c,2a#.,4f.,d#,d,c,2a#.,4f.,d#,d,d#,2c";
 char *goodBad = (char *)"GoodBad:d=4,o=5,b=56:32p,32a#,32d#6,32a#,32d#6,8a#.,16f#.,16g#.,d#,32a#,32d#6,32a#,32d#6,8a#.,16f#.,16g#.,c#6,32a#,32d#6,32a#,32d#6,8a#.,16f#.,32f.,32d#.,c#,32a#,32d#6,32a#,32d#6,8a#.,16g#.,d#";
 char *topGun = (char *)"TopGun:d=4,o=4,b=31:32p,16c#,16g#,16g#,32f#,32f,32f#,32f,16d#,16d#,32c#,32d#,16f,32d#,32f,16f#,32f,32c#,16f,d#,16c#,16g#,16g#,32f#,32f,32f#,32f,16d#,16d#,32c#,32d#,16f,32d#,32f,16f#,32f,32c#,g#";
 char *ateam = (char *)"A-Team:d=8,o=5,b=125:4d#6,a#,2d#6,16p,g#,4a#,4d#.,p,16g,16a#,d#6,a#,f6,2d#6,16p,c#.6,16c6,16a#,g#.,2a#";
@@ -89,15 +91,27 @@ void setup() {
 }
 
 void loop() {
+//  float currentVolts = getInputVoltage();
 
-  int readVal = analogRead(drivewayPin);
-  float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
+//  bool alarmTripped = (digitalRead(drivewayPin) == HIGH); // based on INPUT_PULLDOWN?
+  int pinValue = getInputVoltage();
 
-  if(rawVolts > triggerValue) {
-      alarmTriggered(rawVolts);
+
+  if(DEBUG) {
+
+  //    Serial1.println("Volts: " + String(currentVolts) + " at " + Time.timeStr());
+      Serial1.println("Volts: " + String(pinValue) + " at " + Time.timeStr());
+
+  }
+
+  if(pinValue == HIGH) {
+
+      alarmTriggered(pinValue);
       } else {
       digitalWrite(alarmLED, LOW);  //ensure alarm light is off
     }
+
+
 
      // The main loop() processes one note of the song at a time
   // to avoid blocking the background tasks for too long or else
@@ -116,7 +130,21 @@ void loop() {
       delay(2000);
     }
   }
+
+  delay(1000);
 }
+
+int getInputVoltage() {
+//  int readVal = analogRead(drivewayPin);
+//  float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
+
+//  if(DEBUG) Serial1.println("readVal: " + String(readVal));
+
+//  return rawVolts;
+
+  return digitalRead(drivewayPin);
+}
+
 
 void setupAudio() {
     Spark.function("remote", remoteTrigger);
@@ -125,27 +153,36 @@ void setupAudio() {
     pinMode(D7,OUTPUT);
 }
 
+
 void setupDrivewayAlarm(){
     Spark.function("alarmTest", alarmTestTrigger);
 
-    pinMode(alarmLED, OUTPUT);
+  //  triggerValue = getInputVoltage(); // default to normal voltage (spark seems to output between 1.6 and 1.7 volts constantly with this setup)
 
-    int readVal = analogRead(drivewayPin);
-    float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
-    if (DEBUG) Serial1.println("Init A1 Raw Volts: " + String(rawVolts));
+
+
+    pinMode(alarmLED, OUTPUT);
+    pinMode(drivewayPin, INPUT_PULLDOWN);
+
+    Spark.publish("DrivewayAlarm", "Setup Volts: " + String(getInputVoltage()), 60, PRIVATE);
+
+  //  int readVal = analogRead(drivewayPin);
+    //float rawVolts = readVal * voltsPerBit;  //Calculate voltage at A0 input
+    if (DEBUG) Serial1.println("Init A1 Raw Volts: " + String(getInputVoltage()));
 
     digitalWrite(alarmLED, LOW); // ensure LED is off
 }
 
-void alarmTriggered(float rawVolts){
+void alarmTriggered(int value){
     digitalWrite(alarmLED, HIGH);
+    Spark.publish("DrivewayAlarm", "Volts: " + String(value), 60, PRIVATE);
+//    Spark.publish("DrivewayAlarm", "Input Volts: " + String(rawVolts), 60, PRIVATE);
+  //  if(DEBUG) Serial1.println("Alarm Raw Volts: " + String(rawVolts));
+    //Spark.publish("readValue1", "Input Volts: " + String(rawVolts), 60, PRIVATE);
 
-    Spark.publish("DrivewayAlarm", "Input Volts: " + String(rawVolts), 60, PRIVATE);
-    Spark.publish("readValue1", "Input Volts: " + String(rawVolts), 60, PRIVATE);
+  //  remoteTriggered = true; // start music
 
-    remoteTriggered = true; // start music
 
-    if(DEBUG) Serial1.println("Alarm Raw Volts: " + String(rawVolts));
 }
 
 void playSetupTone() {
@@ -157,8 +194,12 @@ int setMusic(String args){
 
  if(DEBUG) Serial1.println("Music Choice " + String(args));
 
+Spark.publish("SetMusic", "Music Choice: " + String(args), 60, PRIVATE);
+
   if(args == "StarWars") {
     song = starWars;
+  } else if (args == "StarWars2") {
+    song = starWars2;
   } else if (args == "RickRoll") {
     song = rickRoll;
   } else if (args == "TopGun") {
@@ -389,7 +430,7 @@ void tone(int pin, int16_t note, int16_t duration) {
 
 int alarmTestTrigger(String args){
     if(DEBUG) Serial1.println("alarmTriggeredTest Called");
-    alarmTriggered(3.0);
+    alarmTriggered(HIGH);
     return 200;
 }
 
