@@ -8,6 +8,8 @@ const int alarmDelay = 10000; // voltage spikes for 3 seconds, delay for 10 seco
 const int alarmLED = D0;
 const int drivewayPin = A1;
 
+unsigned long lastTriggerTime;
+
 bool playing = false;
 
 #define DEBUG true
@@ -87,6 +89,8 @@ void setup() {
     setupDrivewayAlarm();
 
     playSetupTone();
+
+    lastTriggerTime = Time.now();
 }
 
 void loop() {
@@ -94,7 +98,9 @@ void loop() {
   int readVal = analogRead(drivewayPin);
   float rawVolts = readVal * voltsPerBit;
 
-  if(rawVolts > triggerValue) {
+  bool alarmDelay = ( (lastTriggerTime + 3) > Time.now());
+
+  if(!alarmDelay && (rawVolts > triggerValue)) {
       alarmTriggered(rawVolts);
       } else {
       digitalWrite(alarmLED, LOW);  //ensure alarm light is off
@@ -143,6 +149,8 @@ void alarmTriggered(float rawVolts){
     digitalWrite(alarmLED, HIGH);
 
     Spark.publish("DrivewayAlarm", "Input Volts: " + String(rawVolts), 60, PRIVATE);
+
+    lastTriggerTime = Time.now();
 
     remoteTriggered = true; // start music
 
