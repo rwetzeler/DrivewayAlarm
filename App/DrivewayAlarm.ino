@@ -3,7 +3,7 @@ const float ratioV = (120000 + 33000) / 33000;  //Calculates to 4.636363 (120,00
 
 const float triggerValue = 1.26; // should give about 1.16 voltage for 3 seconds when triggered with voltage regulator, reading 1.24 or 1.25 each cycle
 const int loopDelay = 10;
-const int alarmDelay = 6; // voltage spikes for 3 seconds, delay time
+const int alarmDelay = 3500; // voltage spikes for 3 seconds, delay time
 
 const int alarmLED = D0;
 const int drivewayPin = A1;
@@ -149,8 +149,6 @@ void alarmTriggered(float rawVolts){
     digitalWrite(alarmLED, HIGH);
 
     Spark.publish("DrivewayAlarm", "Input Volts: " + String(rawVolts), 60, PRIVATE);
-
-    lastTriggerTime = Time.now();
 
     remoteTriggered = true; // start music
 
