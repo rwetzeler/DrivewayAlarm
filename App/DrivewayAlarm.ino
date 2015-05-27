@@ -3,7 +3,7 @@ const float ratioV = (120000 + 33000) / 33000;  //Calculates to 4.636363 (120,00
 
 const float triggerValue = 1.26; // should give about 1.16 voltage for 3 seconds when triggered with voltage regulator, reading 1.24 or 1.25 each cycle
 const int loopDelay = 10;
-const int alarmDelay = 10000; // voltage spikes for 3 seconds, delay for 10 seconds
+const int alarmDelay = 6; // voltage spikes for 3 seconds, delay time
 
 const int alarmLED = D0;
 const int drivewayPin = A1;
@@ -98,7 +98,7 @@ void loop() {
   int readVal = analogRead(drivewayPin);
   float rawVolts = readVal * voltsPerBit;
 
-  bool alarmDelay = ( (lastTriggerTime + 3) > Time.now());
+  bool alarmDelay = ( (lastTriggerTime + alarmDelay) > Time.now());
 
   if(!alarmDelay && (rawVolts > triggerValue)) {
       alarmTriggered(rawVolts);
