@@ -15,3 +15,6 @@ polarity sensitive. This output can trigger the Lamp Controller or another low p
 such as a relay. It allows the output to interface with many home automation products.
 
 ![Pic](Pic.jpg)
+
+##Options
+Alternatively I can use an Opti-isolator to drop the volatage down.  In the picture I have a [1 Channel] (https://www.sparkfun.com/products/314) ready to go
