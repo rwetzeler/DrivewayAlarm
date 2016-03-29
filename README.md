@@ -2,7 +2,7 @@
 This project is to utilize a [Particle.IO Core] (http://docs.particle.io/core/) (Formally Spark.IO), a Cloud enabled IoT device, with signal from a STI Driveway alarm [STI-34100] (http://www.sti-usa.com/Products/Wireless-Driveway-Monitor-solar-powered-STI-34100.htm) and utilizing its lamp controller port to give much greater capabilitity to the alarm system.
 
 ##Hardware Used
-* Particle.IO Core
+* Particle.IO Core (the new Photon from Partcile.IO will work for this as well)
 * Breadboard
 * [Breadboard-Friendly 3.5mm Stereo Headphone Jack ID:1699] (https://www.adafruit.com/product/1699) 
 * [3.3V 800mA Linear Voltage Regulator - LD1117V33 ] (https://www.sparkfun.com/products/526)
